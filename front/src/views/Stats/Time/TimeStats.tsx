@@ -41,16 +41,8 @@ const TimeStats = () => {
         type="date" 
         onChange={e => setOrderDate(e.target.value)} 
         value={orderDate}
-        style={{
-          "border": "none",
-    
-        }}/>
-        <select name="년도">
-          <option value="">안녕</option>
-          <option value="">하세요</option>
-          <option value="">그만</option>
-          <option value="">웃어</option>
-        </select>
+        css={css.dateInputStyle}
+        />
         <ResponsiveContainer width={"100%"} height={500}>
           <LineChart data={stats}>
             <CartesianGrid strokeDasharray="3 3" />

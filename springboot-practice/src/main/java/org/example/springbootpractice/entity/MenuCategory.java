@@ -5,17 +5,19 @@ import lombok.*;
 
 @Entity
 @Table(name = "menu_categories")
-@Getter
-@Setter
+@Data
+@Builder(toBuilder = true)
 @NoArgsConstructor
+@AllArgsConstructor
 public class MenuCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private Long storeId;
+    private String menuCategory;
 
     @Column(nullable = false)
-    private String menuCategory;
+    private int menuCategorySequence;
+
 }

@@ -2,15 +2,13 @@ package org.example.springbootpractice.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.springbootpractice.common.constant.ApiMappingPattern;
-import org.example.springbootpractice.dto.request.MenuOptionDetailRequestDto;
-import org.example.springbootpractice.dto.response.MenuOptionDetailResponseDto;
-import org.example.springbootpractice.dto.response.ResponseDto;
+import org.example.springbootpractice.dto.menu.request.MenuOptionDetailRequestDto;
+import org.example.springbootpractice.dto.menu.response.MenuOptionDetailResponseDto;
+import org.example.springbootpractice.dto.ResponseDto;
 import org.example.springbootpractice.service.MenuOptionDetailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(ApiMappingPattern.MENU_OPTION_DETAILS)

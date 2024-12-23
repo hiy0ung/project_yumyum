@@ -2,9 +2,9 @@ package org.example.springbootpractice.service.implement;
 
 import lombok.RequiredArgsConstructor;
 import org.example.springbootpractice.common.constant.ResponseMessage;
-import org.example.springbootpractice.dto.request.MenuOptionDetailRequestDto;
-import org.example.springbootpractice.dto.response.MenuOptionDetailResponseDto;
-import org.example.springbootpractice.dto.response.ResponseDto;
+import org.example.springbootpractice.dto.menu.request.MenuOptionDetailRequestDto;
+import org.example.springbootpractice.dto.menu.response.MenuOptionDetailResponseDto;
+import org.example.springbootpractice.dto.ResponseDto;
 import org.example.springbootpractice.entity.MenuOption;
 import org.example.springbootpractice.entity.MenuOptionDetail;
 import org.example.springbootpractice.repository.MenuOptionDetailRepository;

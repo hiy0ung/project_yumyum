@@ -3,8 +3,12 @@ package org.example.springbootpractice.service.implement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.springbootpractice.common.constant.ResponseMessage;
-import org.example.springbootpractice.dto.request.MenuRequestDto;
-import org.example.springbootpractice.dto.response.*;
+import org.example.springbootpractice.dto.ResponseDto;
+import org.example.springbootpractice.dto.menu.request.MenuRequestDto;
+import org.example.springbootpractice.dto.menu.response.MenuGetResponseDto;
+import org.example.springbootpractice.dto.menu.response.MenuOptionDetailGetResponseDto;
+import org.example.springbootpractice.dto.menu.response.MenuOptionGetResponseDto;
+import org.example.springbootpractice.dto.menu.response.MenuResponseDto;
 import org.example.springbootpractice.entity.Menu;
 import org.example.springbootpractice.entity.MenuCategory;
 import org.example.springbootpractice.entity.Store;
@@ -27,7 +31,6 @@ public class MenuServiceImpl implements MenuService {
     private final MenuRepository menuRepository;
     @Autowired
     private final MenuCategoryRepository menuCategoryRepository;
-
     @Autowired
     private final StoreRepository storeRepository;
 

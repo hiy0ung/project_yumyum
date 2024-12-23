@@ -1,10 +1,8 @@
 package org.example.springbootpractice.service;
 
-import org.example.springbootpractice.dto.request.MenuOptionRequestDto;
-import org.example.springbootpractice.dto.response.MenuOptionResponseDto;
-import org.example.springbootpractice.dto.response.ResponseDto;
-
-import java.util.List;
+import org.example.springbootpractice.dto.menu.request.MenuOptionRequestDto;
+import org.example.springbootpractice.dto.menu.response.MenuOptionResponseDto;
+import org.example.springbootpractice.dto.ResponseDto;
 
 public interface MenuOptionService {
     ResponseDto<MenuOptionResponseDto> addMenuOption(MenuOptionRequestDto dto);

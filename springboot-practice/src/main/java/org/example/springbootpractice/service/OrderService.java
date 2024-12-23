@@ -1,7 +1,7 @@
 package org.example.springbootpractice.service;
 
-import org.example.springbootpractice.dto.response.OrderResponseDto;
-import org.example.springbootpractice.dto.response.ResponseDto;
+import org.example.springbootpractice.dto.order.response.OrderResponseDto;
+import org.example.springbootpractice.dto.ResponseDto;
 
 import java.util.List;
 

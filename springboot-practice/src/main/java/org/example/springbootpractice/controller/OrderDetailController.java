@@ -2,8 +2,8 @@ package org.example.springbootpractice.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.springbootpractice.common.constant.ApiMappingPattern;
-import org.example.springbootpractice.dto.response.OrderDetailResponseDto;
-import org.example.springbootpractice.dto.response.ResponseDto;
+import org.example.springbootpractice.dto.order.response.OrderDetailResponseDto;
+import org.example.springbootpractice.dto.ResponseDto;
 import org.example.springbootpractice.service.OrderDetailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

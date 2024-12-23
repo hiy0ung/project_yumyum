@@ -2,8 +2,8 @@ package org.example.springbootpractice.service.implement;
 
 import lombok.RequiredArgsConstructor;
 import org.example.springbootpractice.common.constant.ResponseMessage;
-import org.example.springbootpractice.dto.response.OrderDetailResponseDto;
-import org.example.springbootpractice.dto.response.ResponseDto;
+import org.example.springbootpractice.dto.order.response.OrderDetailResponseDto;
+import org.example.springbootpractice.dto.ResponseDto;
 import org.example.springbootpractice.repository.OrderDetailRepository;
 import org.example.springbootpractice.service.OrderDetailService;
 import org.springframework.stereotype.Service;

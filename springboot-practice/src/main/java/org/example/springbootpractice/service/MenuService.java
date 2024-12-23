@@ -1,10 +1,10 @@
 package org.example.springbootpractice.service;
 
 import jakarta.validation.Valid;
-import org.example.springbootpractice.dto.request.MenuRequestDto;
-import org.example.springbootpractice.dto.response.MenuGetResponseDto;
-import org.example.springbootpractice.dto.response.MenuResponseDto;
-import org.example.springbootpractice.dto.response.ResponseDto;
+import org.example.springbootpractice.dto.menu.request.MenuRequestDto;
+import org.example.springbootpractice.dto.menu.response.MenuGetResponseDto;
+import org.example.springbootpractice.dto.menu.response.MenuResponseDto;
+import org.example.springbootpractice.dto.ResponseDto;
 import java.util.List;
 
 

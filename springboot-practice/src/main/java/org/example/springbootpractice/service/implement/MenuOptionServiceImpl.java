@@ -2,9 +2,9 @@ package org.example.springbootpractice.service.implement;
 
 import lombok.RequiredArgsConstructor;
 import org.example.springbootpractice.common.constant.ResponseMessage;
-import org.example.springbootpractice.dto.request.MenuOptionRequestDto;
-import org.example.springbootpractice.dto.response.MenuOptionResponseDto;
-import org.example.springbootpractice.dto.response.ResponseDto;
+import org.example.springbootpractice.dto.menu.request.MenuOptionRequestDto;
+import org.example.springbootpractice.dto.menu.response.MenuOptionResponseDto;
+import org.example.springbootpractice.dto.ResponseDto;
 
 import org.example.springbootpractice.entity.Menu;
 import org.example.springbootpractice.entity.MenuOption;
@@ -16,7 +16,6 @@ import org.example.springbootpractice.service.MenuOptionService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-
 
 @Service
 @RequiredArgsConstructor
