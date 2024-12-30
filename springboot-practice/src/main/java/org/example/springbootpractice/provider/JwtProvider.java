@@ -30,9 +30,9 @@ public class JwtProvider {
         this.jwtExpirationMs = jwtExpirationMs;
     }
 
-    public String generateJwtToken(String userId) {
+    public String generateJwtToken(Long id) {
         return Jwts.builder()
-                .claim("userId", userId)
+                .claim("id", id)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -55,9 +55,9 @@ public class JwtProvider {
         return bearerToken.substring("Bearer ".length());
     }
 
-    public String getUserIdFromJwt(String token) {
+    public Long getIdFromJwt(String token) {
         Claims claims = getClaims(token);
-        return claims.get("userId", String.class);
+        return claims.get("id", Long.class);
     }
 
     public boolean isValidToken(String token) {

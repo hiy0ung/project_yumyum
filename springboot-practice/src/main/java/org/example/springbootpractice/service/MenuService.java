@@ -9,9 +9,9 @@ import java.util.List;
 
 
 public interface MenuService {
-    ResponseDto<MenuResponseDto> addMenu(@Valid MenuRequestDto dto);
-    ResponseDto<List<MenuGetResponseDto>> getAllMenus();
-    ResponseDto<MenuGetResponseDto> getMenusById(Long id);
-    ResponseDto<MenuResponseDto> updateMenu(@Valid Long id, MenuRequestDto dto);
-    ResponseDto<Void> deleteMenu(Long id);
+    ResponseDto<MenuResponseDto> addMenu(@Valid MenuRequestDto dto, Long id);
+    ResponseDto<List<MenuGetResponseDto>> getAllMenus(Long id);
+    ResponseDto<MenuGetResponseDto> getMenusById(Long menuId, Long id);
+    ResponseDto<MenuResponseDto> updateMenu(@Valid Long menuId, MenuRequestDto dto, Long id);
+    ResponseDto<Void> deleteMenu(Long menuId, Long id);
 }

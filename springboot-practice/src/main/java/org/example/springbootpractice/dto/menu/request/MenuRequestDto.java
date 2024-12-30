@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,4 +19,5 @@ public class MenuRequestDto {
     private String menuDescription;
     private int menuPrice;
     private Boolean isAvailable;
+    private List<MenuOptionRequestDto> menuOption;
 }

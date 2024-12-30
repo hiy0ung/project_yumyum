@@ -7,6 +7,7 @@ import org.example.springbootpractice.dto.ResponseDto;
 import org.example.springbootpractice.service.OrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class OrderController {
     private static final String UPDATE_ORDER_STATE = "/update/state/{id}";
 
     @GetMapping(GET_ORDER_LIST)
-    public ResponseEntity<ResponseDto<List<OrderResponseDto>>> getAllOrders() {
+    public ResponseEntity<ResponseDto<List<OrderResponseDto>>> getAllOrders(@AuthenticationPrincipal String userId) {
         ResponseDto<List<OrderResponseDto>> response = orderService.getAllOrders();
         HttpStatus status = response.isResult() ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
         return ResponseEntity.status(status).body(response);
@@ -31,7 +32,8 @@ public class OrderController {
     @PutMapping(UPDATE_ORDER_STATE)
     public ResponseEntity<ResponseDto<OrderResponseDto>> updateOrderState(
             @PathVariable Long id,
-            @RequestParam String updateOrderState) {
+            @RequestParam String updateOrderState,
+            @AuthenticationPrincipal String userId) {
         ResponseDto<OrderResponseDto> response = orderService.updateOrderState(id, updateOrderState);
         HttpStatus status = response.isResult() ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
         return ResponseEntity.status(status).body(response);

@@ -24,7 +24,7 @@ public class MenuOptionDetailServiceImpl implements MenuOptionDetailService {
     private final MenuOptionRepository menuOptionRepository;
 
     @Override
-    public ResponseDto<MenuOptionDetailResponseDto> addOptionDetail(MenuOptionDetailRequestDto dto) {
+    public ResponseDto<MenuOptionDetailResponseDto> addOptionDetail(MenuOptionDetailRequestDto dto, Long id) {
         MenuOptionDetailResponseDto data = null;
 
         try {
@@ -48,9 +48,8 @@ public class MenuOptionDetailServiceImpl implements MenuOptionDetailService {
     }
 
     @Override
-    public ResponseDto<MenuOptionDetailResponseDto> updateOptionDetail(MenuOptionDetailRequestDto dto, Long id) {
+    public ResponseDto<MenuOptionDetailResponseDto> updateOptionDetail(MenuOptionDetailRequestDto dto, Long optionDetailId, Long id) {
         MenuOptionDetailResponseDto data = null;
-        Long optionDetailId = id;
 
         try {
             Optional<MenuOptionDetail> menuOptionDetailOptional = menuOptionDetailRepository.findById(optionDetailId);
@@ -74,8 +73,7 @@ public class MenuOptionDetailServiceImpl implements MenuOptionDetailService {
     }
 
     @Override
-    public ResponseDto<Void> deleteOptionDetail(Long id) {
-        Long optionDetailId = id;
+    public ResponseDto<Void> deleteOptionDetail(Long optionDetailId, Long id) {
 
         try {
             Optional<MenuOptionDetail> menuOptionDetailOptional = menuOptionDetailRepository.findById(optionDetailId);

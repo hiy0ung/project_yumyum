@@ -2,6 +2,7 @@ package org.example.springbootpractice.service.implement;
 
 import lombok.RequiredArgsConstructor;
 import org.example.springbootpractice.common.constant.ResponseMessage;
+import org.example.springbootpractice.dto.menu.request.MenuOptionDetailRequestDto;
 import org.example.springbootpractice.dto.menu.request.MenuOptionRequestDto;
 import org.example.springbootpractice.dto.menu.response.MenuOptionResponseDto;
 import org.example.springbootpractice.dto.ResponseDto;
@@ -12,9 +13,11 @@ import org.example.springbootpractice.entity.MenuOptionGroup;
 import org.example.springbootpractice.repository.MenuOptionGroupRepository;
 import org.example.springbootpractice.repository.MenuOptionRepository;
 import org.example.springbootpractice.repository.MenuRepository;
+import org.example.springbootpractice.service.MenuOptionDetailService;
 import org.example.springbootpractice.service.MenuOptionService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,8 +30,10 @@ public class MenuOptionServiceImpl implements MenuOptionService {
 
     private final MenuOptionGroupRepository menuOptionGroupRepository;
 
+    private final MenuOptionDetailService menuOptionDetailService;
+
     @Override
-    public ResponseDto<MenuOptionResponseDto> addMenuOption(MenuOptionRequestDto dto) {
+    public ResponseDto<MenuOptionResponseDto> addMenuOption(MenuOptionRequestDto dto, Long id) {
         MenuOptionResponseDto data = null;
 
         try {
@@ -39,8 +44,14 @@ public class MenuOptionServiceImpl implements MenuOptionService {
                     .optionName(dto.getOptionName())
                     .build();
 
-            menuOptionRepository.save(menuOption);
-
+            MenuOption savedMenuOption = menuOptionRepository.save(menuOption);
+            List<MenuOptionDetailRequestDto> details = dto.getOptionDetail();
+            if(details != null) {
+                for (MenuOptionDetailRequestDto detailDto : details) {
+                    detailDto.setMenuOptionId(savedMenuOption.getId());
+                    menuOptionDetailService.addOptionDetail(detailDto, id);
+                }
+            }
             MenuOptionGroup menuOptionGroup = MenuOptionGroup.builder()
                     .menu(menu)
                     .menuOption(menuOption)
@@ -48,7 +59,7 @@ public class MenuOptionServiceImpl implements MenuOptionService {
 
             menuOptionGroupRepository.save(menuOptionGroup);
 
-            data = new MenuOptionResponseDto(menuOption);
+            data = new MenuOptionResponseDto(savedMenuOption);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -57,13 +68,13 @@ public class MenuOptionServiceImpl implements MenuOptionService {
         return ResponseDto.setSuccess(ResponseMessage.SUCCESS, data);
     }
 
+
     @Override
-    public ResponseDto<MenuOptionResponseDto> updateMenuOption(MenuOptionRequestDto dto, Long id) {
+    public ResponseDto<MenuOptionResponseDto> updateMenuOption(MenuOptionRequestDto dto, Long optionId, Long id) {
         MenuOptionResponseDto data = null;
-        Long menuOptionId = id;
 
         try {
-            Optional<MenuOption> menuOptionOptional = menuOptionRepository.findById(menuOptionId);
+            Optional<MenuOption> menuOptionOptional = menuOptionRepository.findById(optionId);
 
             if (menuOptionOptional.isPresent()) {
                 MenuOption menuOption = menuOptionOptional.get().toBuilder()
@@ -82,10 +93,9 @@ public class MenuOptionServiceImpl implements MenuOptionService {
     }
 
     @Override
-    public ResponseDto<Void> deleteMenuOption(Long id) {
-        Long menuOptionId = id;
+    public ResponseDto<Void> deleteMenuOption(Long optionId, Long id) {
         try {
-            Optional<MenuOption> menuOptionOptional = menuOptionRepository.findById(menuOptionId);
+            Optional<MenuOption> menuOptionOptional = menuOptionRepository.findById(optionId);
 
             if (menuOptionOptional.isPresent()) {
                 MenuOption menuOption = menuOptionOptional.get();

@@ -15,13 +15,15 @@ public interface StatsTimeRepository extends JpaRepository<Order, Long> {
         with menu_total_price as (
             select
                 o.id as order_id,
+                s.owner_id as user_id,
                 sum(m.menu_price) as menu_total_price
             from
                 orders o
                 left outer join order_details od on od.order_id = o.id
                 left outer join menus m on m.id = od.menu_id
+                left outer join stores s on s.id = m.store_id
             group by
-                o.id, m.store_id
+                o.id, s.owner_id
         ),
         option_total_price as (
             select
@@ -54,14 +56,17 @@ public interface StatsTimeRepository extends JpaRepository<Order, Long> {
             year(o.order_date) = :year
             and month(o.order_date) = :month
             and day(o.order_date) = :day
-            and o.order_state = "2"
+            and o.order_state = '2'
+            and mtp.user_id = :userId
         group by
             date(o.order_date),
-            hour(o.order_date)
+            hour(o.order_date),
+            o.order_state
         order by
             date(o.order_date), hour(o.order_date)
 """, nativeQuery = true)
     List<Object[]> findRevenueByOrderDate(@Param("year") int year,
                                           @Param("month") int month,
-                                          @Param("day") int day);
+                                          @Param("day") int day,
+                                          @Param("userId") Long id);
 }

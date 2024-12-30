@@ -7,6 +7,7 @@ import org.example.springbootpractice.dto.stat.response.StatsMenuResponseDto;
 import org.example.springbootpractice.service.StatsMenuService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,22 +27,28 @@ public class StatsMenuController {
     public static final String GET_STATS_MONTH = "/menus/month/{orderDate}";
 
     @GetMapping(GET_STATS_TODAY)
-    public ResponseEntity<ResponseDto<List<StatsMenuResponseDto>>> getTodaySalesByOrderDate() {
-        ResponseDto<List<StatsMenuResponseDto>> response = statsMenuService.getTodaySalesByOrderDate();
+    public ResponseEntity<ResponseDto<List<StatsMenuResponseDto>>> getTodaySalesByOrderDate(@AuthenticationPrincipal Long id) {
+        ResponseDto<List<StatsMenuResponseDto>> response = statsMenuService.getTodaySalesByOrderDate(id);
         HttpStatus status = response.isResult() ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
         return ResponseEntity.status(status).body(response);
     }
 
     @GetMapping(GET_STATS_DAY) // 2024-12-20T10:00:00
-    public ResponseEntity<ResponseDto<List<StatsMenuResponseDto>>> getDaySalesByOrderDate(@PathVariable String orderDate) {
-        ResponseDto<List<StatsMenuResponseDto>> response = statsMenuService.getDaySalesByOrderDate(orderDate);
+    public ResponseEntity<ResponseDto<List<StatsMenuResponseDto>>> getDaySalesByOrderDate(
+            @PathVariable String orderDate,
+            @AuthenticationPrincipal Long id
+    ) {
+        ResponseDto<List<StatsMenuResponseDto>> response = statsMenuService.getDaySalesByOrderDate(orderDate, id);
         HttpStatus status = response.isResult() ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
         return ResponseEntity.status(status).body(response);
     }
 
     @GetMapping(GET_STATS_MONTH) // 2024-12-20T10:00:00
-    public ResponseEntity<ResponseDto<List<StatsMenuResponseDto>>> getMonthSalesByOrderDate(@PathVariable String orderDate) {
-        ResponseDto<List<StatsMenuResponseDto>> response = statsMenuService.getMonthSalesByOrderDate(orderDate);
+    public ResponseEntity<ResponseDto<List<StatsMenuResponseDto>>> getMonthSalesByOrderDate(
+            @PathVariable String orderDate,
+            @AuthenticationPrincipal Long id
+    ) {
+        ResponseDto<List<StatsMenuResponseDto>> response = statsMenuService.getMonthSalesByOrderDate(orderDate, id);
         HttpStatus status = response.isResult() ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
         return ResponseEntity.status(status).body(response);
     }

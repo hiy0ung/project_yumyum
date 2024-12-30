@@ -61,11 +61,11 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 new AntPathRequestMatcher("/api/v1/auth/**"),
-                                new AntPathRequestMatcher("/api/v1/stats/**"),
-                                new AntPathRequestMatcher("/api/v1/menus/**"),
-                                new AntPathRequestMatcher("/api/v1/options/**"),
-                                new AntPathRequestMatcher("/api/v1/orders/**"),
-                                new AntPathRequestMatcher("/api/v1/optionDetails/**")
+                                new AntPathRequestMatcher("/api/v1/stats/**")
+//                                new AntPathRequestMatcher("/api/v1/menus/**"),
+//                                new AntPathRequestMatcher("/api/v1/options/**"),
+//                                new AntPathRequestMatcher("/api/v1/orders/**"),
+//                                new AntPathRequestMatcher("/api/v1/optionDetails/**")
 
                         )
                         .permitAll()

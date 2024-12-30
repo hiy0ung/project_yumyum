@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.springbootpractice.common.constant.ResponseMessage;
 import org.example.springbootpractice.dto.ResponseDto;
+import org.example.springbootpractice.dto.menu.request.MenuOptionRequestDto;
 import org.example.springbootpractice.dto.menu.request.MenuRequestDto;
 import org.example.springbootpractice.dto.menu.response.MenuGetResponseDto;
 import org.example.springbootpractice.dto.menu.response.MenuOptionDetailGetResponseDto;
@@ -31,10 +32,14 @@ public class MenuServiceImpl implements MenuService {
     private final MenuRepository menuRepository;
     @Autowired
     private final MenuCategoryRepository menuCategoryRepository;
+
+    @Autowired
+    MenuOptionServiceImpl menuOptionService;
+
     @Autowired
     private final StoreRepository storeRepository;
 
-    public ResponseDto<MenuResponseDto> addMenu(@Valid MenuRequestDto dto) {
+    public ResponseDto<MenuResponseDto> addMenu(MenuRequestDto dto, Long id) {
         MenuResponseDto data = null;
 
         try {
@@ -42,7 +47,7 @@ public class MenuServiceImpl implements MenuService {
             if (OptionalCategory.isEmpty()) {
                 return ResponseDto.setFailed(ResponseMessage.NOT_EXIST_DATA);
             }
-            Store store = storeRepository.findById(dto.getStoreId()).orElseThrow(() -> new RuntimeException("오류"));
+            Store store = storeRepository.findById(id).orElseThrow(() -> new RuntimeException("오류"));
 
             MenuCategory category = OptionalCategory.get();
             Menu menu = Menu.builder()
@@ -52,10 +57,18 @@ public class MenuServiceImpl implements MenuService {
                     .menuPrice(dto.getMenuPrice())
                     .isAvailable(dto.getIsAvailable())
                     .menuCategory(category)
+                    .store(store)
                     .build();
-
-            menu.setStore(store);
             Menu savedMenu = menuRepository.save(menu);
+
+            List<MenuOptionRequestDto> options = dto.getMenuOption();
+            if (options != null) {
+                for(MenuOptionRequestDto optionDto : options) {
+                    optionDto.setMenuId(savedMenu.getId());
+                    menuOptionService.addMenuOption(optionDto, id);
+                }
+            }
+
             MenuResponseDto responseDto = new MenuResponseDto(savedMenu);
             data = responseDto;
         } catch (Exception e) {
@@ -65,11 +78,10 @@ public class MenuServiceImpl implements MenuService {
         return ResponseDto.setSuccess(ResponseMessage.SUCCESS, data);
     }
 
-    public ResponseDto<List<MenuGetResponseDto>> getAllMenus() {
+    public ResponseDto<List<MenuGetResponseDto>> getAllMenus(Long id) {
         List<MenuGetResponseDto> data = null;
-
         try {
-            data = menuRepository.findAllMenuWithCategoryAndOption().stream().collect(Collectors.groupingBy(
+            data = menuRepository.findAllMenuWithCategoryAndOption(id).stream().collect(Collectors.groupingBy(
                     a -> (Long) a[0],
                 Collectors.collectingAndThen(
                         Collectors.toList(),
@@ -112,9 +124,8 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    public ResponseDto<MenuGetResponseDto> getMenusById(Long id) {
+    public ResponseDto<MenuGetResponseDto> getMenusById(Long menuId, Long id) {
         MenuGetResponseDto data = null;
-        Long menuId = id;
 
         try {
             List<Object[]> result = menuRepository.findMenuWithCategoryAndOptionByMenuId(menuId);
@@ -157,7 +168,7 @@ public class MenuServiceImpl implements MenuService {
         return ResponseDto.setSuccess(ResponseMessage.SUCCESS, data);
     }
 
-    public ResponseDto<MenuResponseDto> updateMenu(@Valid Long menuId, MenuRequestDto dto) {
+    public ResponseDto<MenuResponseDto> updateMenu(@Valid Long menuId, MenuRequestDto dto, Long id) {
         MenuResponseDto data = null;
 
         try {
@@ -187,7 +198,7 @@ public class MenuServiceImpl implements MenuService {
         return ResponseDto.setSuccess(ResponseMessage.SUCCESS, data);
     }
 
-    public ResponseDto<Void> deleteMenu(Long menuId) {
+    public ResponseDto<Void> deleteMenu(Long menuId, Long id) {
         try {
             Optional<Menu> optionalMenu = menuRepository.findById(menuId);
             if (optionalMenu.isEmpty()) {
