@@ -23,9 +23,9 @@ public class StoreServiceImpl implements StoreService {
 
 
     @Override
-    public boolean findByStore(String userId) {
+    public boolean findByStore(Long id) {
         try {
-            Optional<Store> optionalStore = storeRepository.getStoreByUserId(userId);
+            Optional<Store> optionalStore = storeRepository.getStoreByUserId(id);
             if(optionalStore.isEmpty()) {
                 ResponseDto.setFailed(ResponseMessage.NOT_EXIST_STORE);
                 return false;
@@ -37,11 +37,11 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public ResponseDto<StoreResponseDto> getStore(String userId) {
+    public ResponseDto<StoreResponseDto> getStore(Long id) {
         StoreResponseDto data = null;
 
         try {
-            Optional<Store> optionalStore = storeRepository.getStoreByUserId(userId);
+            Optional<Store> optionalStore = storeRepository.getStoreByUserId(id);
 
             if (optionalStore.isEmpty()) {
                 return ResponseDto.setFailed(ResponseMessage.NOT_EXIST_STORE);
@@ -59,11 +59,11 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public ResponseDto<StoreResponseDto> createStore(String userId, StoreRequestDto dto) {
+    public ResponseDto<StoreResponseDto> createStore(Long id, StoreRequestDto dto) {
         StoreResponseDto data = null;
 
         try {
-            Optional<User> optionalUser = userRepository.findByUserId(userId);
+            Optional<User> optionalUser = userRepository.findById(id);
 
             if (optionalUser.isEmpty()) {
                 return ResponseDto.setFailed(ResponseMessage.NOT_EXIST_USER);
@@ -96,11 +96,11 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public ResponseDto<StoreResponseDto> updateStore(String userId, StoreRequestDto dto) {
+    public ResponseDto<StoreResponseDto> updateStore(Long id, StoreRequestDto dto) {
         StoreResponseDto data = null;
 
         try {
-            Optional<Store> optionalStore = storeRepository.getStoreByUserId(userId);
+            Optional<Store> optionalStore = storeRepository.getStoreByUserId(id);
 
             if (optionalStore.isEmpty()) {
                 return ResponseDto.setFailed(ResponseMessage.NOT_EXIST_STORE);
@@ -130,9 +130,9 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public ResponseDto<Void> deleteStore(String userId) {
+    public ResponseDto<String> deleteStore(Long id) {
         try {
-            Optional<Store> optionalStore = storeRepository.getStoreByUserId(userId);
+            Optional<Store> optionalStore = storeRepository.getStoreByUserId(id);
 
             if (optionalStore.isEmpty()) {
                 return ResponseDto.setFailed(ResponseMessage.NOT_EXIST_STORE);
@@ -145,7 +145,7 @@ public class StoreServiceImpl implements StoreService {
             e.printStackTrace();
             return ResponseDto.setFailed(ResponseMessage.DATABASE_ERROR);
         }
-        return ResponseDto.setSuccess(ResponseMessage.SUCCESS, null);
+        return ResponseDto.setSuccess(ResponseMessage.SUCCESS, "가게 삭제에 성공하였습니다.");
     }
 }
 

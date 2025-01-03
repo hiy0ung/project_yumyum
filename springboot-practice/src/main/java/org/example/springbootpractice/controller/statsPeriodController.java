@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping(ApiMappingPattern.STATS)
 @RequiredArgsConstructor
-public class statsPeriodController {
+public class StatsPeriodController {
     private final StatsPeriodService statsPeriodService;
 
     public static final String GET_STATS_PERIOD_DAILY = "/daily/{orderDate}";

@@ -1,9 +1,15 @@
 package org.example.springbootpractice.service.implement;
 
+import lombok.RequiredArgsConstructor;
+import org.example.springbootpractice.common.constant.ResponseMessage;
 import org.example.springbootpractice.dto.ResponseDto;
 import org.example.springbootpractice.dto.rating.response.RatingMonthResponseDto;
 import org.example.springbootpractice.dto.rating.response.RatingStatisticsResponseDto;
+import org.example.springbootpractice.entity.Store;
+import org.example.springbootpractice.repository.RatingRepository;
+import org.example.springbootpractice.repository.StoreRepository;
 import org.example.springbootpractice.service.RatingService;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -11,6 +17,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Service
+@RequiredArgsConstructor
 public class RatingServiceImpl implements RatingService {
     private final RatingRepository ratingRepository;
     private final StoreRepository storeRepository;

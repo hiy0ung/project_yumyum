@@ -6,7 +6,7 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class StatsTimeResponseDto {
+public class RevenueStatsTimeResponseDto {
     private LocalDate date;
     private Integer hour;
     private Long revenue;

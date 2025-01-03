@@ -27,7 +27,7 @@ public interface MenuRepository extends JpaRepository<Menu, Long> {
             md.additional_fee
         FROM
             menus m
-        left outer join
+        LEFT OUTER JOIN
             stores s on s.id = m.store_id
         LEFT OUTER JOIN
             menu_categories mc ON m.category_id = mc.id
@@ -60,13 +60,13 @@ public interface MenuRepository extends JpaRepository<Menu, Long> {
             md.additional_fee as addtionalFee
         FROM
             menus m
-        INNER JOIN
+        LEFT OUTER JOIN
             menu_categories mc ON m.category_id = mc.id
-        INNER JOIN
+        LEFT OUTER JOIN
             menu_option_group mog ON mog.menu_id = m.id
-        INNER JOIN
+        LEFT OUTER JOIN
             menu_options mo ON mog.menu_option_id = mo.id
-        INNER JOIN
+        LEFT OUTER JOIN
             menu_option_details md ON md.menu_option_id = mo.id
         WHERE 
             m.id = :menuId
