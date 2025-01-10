@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import "./App.css";
-import {Route, Routes, useLocation} from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import {
     AUTH_PATH_SIGN_UP,
     CONTACT_PATH,
@@ -12,55 +12,90 @@ import {
     STATS_TIME_PATH,
     STORE_PATH,
     CREATE_STORE_PATH,
-    AUTH_PATH_LOGIN, MY_PAGE, MY_PAGE_UPDATE, MAIN_PATH
+    AUTH_PATH_LOGIN,
+    MY_PAGE,
+    MY_PAGE_UPDATE,
+    MAIN_PATH,
+    UPDATE_STORE_PATH,
+    HOME_PATH,
+    FIND_ID_PATH,
+    FIND_PW_PATH
 } from "./constants";
 import Header from "./layouts/Header/index";
 import SideBar from "./layouts/SideBar";
 import Store from "./views/StoreManagement/GetStore/GetStore";
-import CreateStore from "./views/StoreManagement/CreateStore/CreateStore"
+import CreateStore from "./views/StoreManagement/CreateStore/CreateStore";
+import UpdateStore from "./views/StoreManagement/UpdateStore/UpdateStore";
 import MenuManagement from "./views/MenuManagement/MenuManagement";
 import MenusStats from "./views/Stats/Menus/MenusStats";
 import PeriodStats from "./views/Stats/Period/PeriodStats";
 import TimeStats from "./views/Stats/Time/TimeStats";
-import Review from "./views/Review/Review";
 import Contact from "./views/Contact/Contact";
 import * as css from "./Styles/MainStyle";
-import Main from "./views/Main/Main";
+import Order from "./views/Order/Order";
 import SignUp from "./views/Authentication/SignUp/SignUp";
-import LogIn from "./views/Authentication/LogIn/LogIn";
+import AuthUser from "./views/Authentication/Login/Login";
 import Mypage from "./views/MyPage/Mypage";
 import MypageUpdate from "./views/MyPage/MypageUpdate";
-
+import Review from "./views/Review/Review";
+import Main from "./views/Main/Main";
+import { useCookies } from "react-cookie";
+import FindId from "./views/Authentication/FIndID/FindID";
+import FindPW from "./views/Authentication/FindPW/FindPW";
+import ChangePassword from "./views/Authentication/PasswordReset/ChangePassword";
 
 function App() {
-    const location = useLocation();
+    const [cookies] = useCookies(["token"]);
+    const token = cookies.token;
+
+    const navigate = useNavigate();
+
     useEffect(() => {
-    }, [location.pathname]);
+        if (!token && !window.location.pathname.includes('/findPassword')) {
+            navigate(MAIN_PATH);
+        }
+    }, [token]);
+
     return (
         <>
-            <div css={css.wrap}>
-                <SideBar/>
-                <div css={css.rightContainer}>
-                    <Header/>
-                    <main>
-                        <Routes>
-                            <Route path={MAIN_PATH} element={<Main/>}/>
-                            <Route path={STORE_PATH} element={<Store/>}></Route>
-                            <Route path={CREATE_STORE_PATH} element={<CreateStore/>}/>
-                            <Route path={MENU_PATH} element={<MenuManagement/>}></Route>
-                            <Route path={STATS_PERIOD_PATH} element={<PeriodStats/>}></Route>
-                            <Route path={STATS_MENUS_PATH} element={<MenusStats/>}></Route>
-                            <Route path={STATS_TIME_PATH} element={<TimeStats/>}></Route>
-                            <Route path={REVIEW_PATH} element={<Review/>}></Route>
-                            <Route path={MY_PAGE} element={<Mypage/>}></Route>
-                            <Route path={MY_PAGE_UPDATE} element={<MypageUpdate/>}></Route>
-                            <Route path={CONTACT_PATH} element={<Contact/>}></Route>
-                            <Route path={AUTH_PATH_SIGN_UP} element={<SignUp/>}></Route>
-                            <Route path={AUTH_PATH_LOGIN} element={<LogIn/>}></Route>
-                        </Routes>
-                    </main>
-                </div>
-            </div>
+            {
+                token ?
+                    (
+                        <div css={css.wrap}>
+                            <SideBar />
+                            <div css={css.rightContainer}>
+                                <Header />
+                                <main>
+                                    <Routes>
+                                        <Route path={HOME_PATH} element={<Order />} />
+                                        <Route path={STORE_PATH} element={<Store />} />
+                                        <Route path={CREATE_STORE_PATH} element={<CreateStore />} />
+                                        <Route path={UPDATE_STORE_PATH} element={<UpdateStore />} />
+                                        <Route path={MENU_PATH} element={<MenuManagement />} />
+                                        <Route path={STATS_PERIOD_PATH} element={<PeriodStats />} />
+                                        <Route path={STATS_MENUS_PATH} element={<MenusStats />} />
+                                        <Route path={STATS_TIME_PATH} element={<TimeStats />} />
+                                        <Route path={REVIEW_PATH} element={<Review />} />
+                                        <Route path={MY_PAGE} element={<Mypage />} />
+                                        <Route path={MY_PAGE_UPDATE} element={<MypageUpdate />} />
+                                        <Route path={CONTACT_PATH} element={<Contact />} />
+                                    </Routes>
+                                </main>
+                            </div>
+                        </div>
+                    ) : (
+                        <div>
+                            <Routes>
+                                <Route path={MAIN_PATH} element={<Main />} />
+                                <Route path={AUTH_PATH_SIGN_UP} element={<SignUp />} />
+                                <Route path={FIND_ID_PATH} element={<FindId />} />
+                                <Route path={FIND_PW_PATH} element={<FindPW />} />
+                                <Route path={AUTH_PATH_LOGIN} element={<AuthUser />} />
+                                <Route path="/findPassword" element={<ChangePassword />} />
+                            </Routes>
+                        </div>
+                    )
+            }
         </>
     );
 }

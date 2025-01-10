@@ -4,87 +4,70 @@ import React, { useEffect, useState } from "react";
 import * as s from "./Style";
 import Modal from "@mui/material/Modal";
 import { Box, Fade, FormControlLabel, Switch } from "@mui/material";
-
-interface Menus {
-  menuId: number;
-  menuCategory: string;
-  menuName: string;
-  imageUrl: string;
-  menuDescription: string;
-  menuPrice: number;
-  isAvailable: boolean;
-  menuOptions: {
-    menuOptionId: number;
-    optionName: string;
-    optionDetails: {
-      detailId: number;
-      optionDetailName: string;
-      additiionalFee: number;
-    };
-  };
-}
-
-interface Menu {
-  menuName: string;
-  imageUrl: string;
-  menuDescription: string;
-  menuPrice: number;
-  isAvailable: boolean;
-}
-
-interface Category {
-  id: number;
-  menuCategory: String;
-  menuCategorySequence: number;
-}
-
-interface AddCategory {
-  menuCategory: string;
-  menuCategorySequence: number;
-}
+import MenuModal from "./MenuModal";
+import { updateModalStore, useModalStore } from "../../Stores/menuModal.store";
+import { useCookies } from "react-cookie";
+import { Menus, Category, AddCategory, UpdateMenu, MenuOptions, MenuData } from "../../types/Menu"
 
 export default function MenuManagement() {
-  const [menu, setMenu] = useState<Menu>({
-    menuName: "",
-    imageUrl: "",
-    menuDescription: "",
-    menuPrice: 0,
-    isAvailable: false,
-  });
+  const [cookies] = useCookies(["token"]);
   const [AddCategory, setAddCategory] = useState<AddCategory>({
     menuCategory: "",
     menuCategorySequence: 0,
   });
   const [menus, setMenus] = useState<Menus[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [categoryModalOepn, setIsCategoryModalOpen] = useState(false);
   const [checked, setChecked] = useState(false);
-  const [menuChecked, setMenuChecked] = useState(false);
+  const [updateOptionChecked, setUpdateOptionChecked] = useState<boolean[]>([]);
+  const [selectedMenuId, setSelectedMenuId] = useState<number>(0);
+  const [updateMenuData, setUpdateMenuData] = useState({});
+  const [updateMenudata, setUpdateMenudata] = useState<UpdateMenu>({
+    categoryId: categories.length > 0 ? categories[0].id : 0,
+    menuName: "",
+    imageUrl: "",
+    menuDescription: "",
+    menuPrice: 0,
+    isAvailable: false,
+    menuOptions: [
+      {
+        optionName: "옵션 없음",
+        optionDetails: [
+          {
+            optionDetailName: "옵션 없음",
+            additionalFee: 0,
+          },
+        ],
+      },
+    ],
+  });
+
+  useEffect(() => {
+    if(categories.length > 0) {
+      setUpdateMenudata(prevState => ({
+        ...prevState,
+        categoryId: categories[0].id
+      }));
+    }
+  }, [categories])
+
+  const { updateModalState, updateModalOpen, updateModalClose} = updateModalStore();
+  const { isModalOpen, openModal, closeModal } = useModalStore();
 
   const categoryOpenModal = () => setIsCategoryModalOpen(true);
   const categoryCloseModal = () => {
     setIsCategoryModalOpen(false);
   };
-
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => {
-    setMenu({
-      menuName: "",
-      imageUrl: "",
-      menuDescription: "",
-      menuPrice: 0,
-      isAvailable: false,
-    });
-    setChecked(true);
-    setMenuChecked(true);
-    setIsModalOpen(false);
-  };
-
   const fetchCategoryData = async () => {
+    const token = cookies.token;
     try {
       const data = await axios.get(
-        `http://localhost:4041/api/v1/categories/get`
+        `http://localhost:4041/api/v1/categories/get`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       setCategories(data.data.data);
     } catch (e) {
@@ -93,20 +76,16 @@ export default function MenuManagement() {
   };
 
   const fetchData = async () => {
+    const token = cookies.token;
     try {
-      const data = await axios.get(`http://localhost:4041/api/v1/menus/`);
+      const data = await axios.get(`http://localhost:4041/api/v1/menus/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setMenus(data.data.data);
     } catch (e) {
       console.log("object");
-    }
-  };
-
-  const menuAdd = async () => {
-    try {
-      await axios.post(`http://localhost:4041/api/v1/add`, menu);
-      // closeModal()
-    } catch (e) {
-      console.error("object");
     }
   };
 
@@ -114,23 +93,75 @@ export default function MenuManagement() {
     setChecked(event.target.checked);
   };
 
-  const menuHandleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setMenuChecked(event.target.checked);
+  const stateIsAvailable = async (menuId: number) => {
+    setMenus((prevMenu) =>
+      prevMenu.map((menu) =>
+        menu.menuId === menuId
+          ? { ...menu, isAvailable: !menu.isAvailable }
+          : menu
+      )
+    );
+    const updateIsAvailable = menus.find((menu) => menu.menuId === menuId);
+
+    if (updateIsAvailable) {
+      menuId = updateIsAvailable.menuId;
+      try {
+        const token = cookies.token;
+        const categoryId = getCategoryIdFromName(
+          updateIsAvailable.menuCategory
+        );
+        await axios.put(
+          `http://localhost:4041/api/v1/menus/update/${menuId}`,
+          {
+            categoryId: categoryId,
+            menuName: updateIsAvailable.menuName,
+            imageUrl: updateIsAvailable.imageUrl,
+            menuDescription: updateIsAvailable.menuDescription,
+            menuPrice: updateIsAvailable.menuPrice,
+            isAvailable: !updateIsAvailable.isAvailable,
+            menuOptions: updateIsAvailable.menuOptions,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      } catch (e) {
+        console.error("오류");
+      }
+    }
+  };
+
+  const getCategoryIdFromName = (categoryName: string) => {
+    const category = categories.find(
+      (cate) => cate.menuCategory === categoryName
+    );
+    return category ? category.id : null;
   };
 
   const updateCategorySequence = async (updatedCategories: Category[]) => {
     setCategories(updatedCategories);
-
+    const token = cookies.token;
     for (const category of updatedCategories) {
-      await axios.put(`http://localhost:4041/api/v1/categories/sequence`, {
-        id: category.id,
-        menuCategorySequence: category.menuCategorySequence,
-      });
+      await axios.put(
+        `http://localhost:4041/api/v1/categories/sequence`,
+        {
+          id: category.id,
+          menuCategorySequence: category.menuCategorySequence,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
     }
   };
 
   const CategorySubmit = async () => {
     try {
+      const token = cookies.token;
       for (const category of categories) {
         if (category.menuCategory === AddCategory.menuCategory) {
           alert("이미 추가된 카테고리 명 입니다.");
@@ -142,23 +173,44 @@ export default function MenuManagement() {
           alert("이미 추가되있는 카테고리 순번입니다.");
           return;
         }
-        if(AddCategory.menuCategory === "") {
+        if (AddCategory.menuCategory === "") {
           alert("빈 값은 추가할 수 없습니다.");
           return;
         }
       }
-      console.log(AddCategory);
-      await axios.post(`http://localhost:4041/api/v1/categories/post`, {
-        menuCategory: AddCategory.menuCategory,
-        menuCategorySequence: AddCategory.menuCategorySequence,
-      });
+      await axios.post(
+        `http://localhost:4041/api/v1/categories/post`,
+        {
+          menuCategory: AddCategory.menuCategory,
+          menuCategorySequence: AddCategory.menuCategorySequence,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
     } catch (e) {
       console.error("오류");
     }
-    alert("성공적으로 추가되었습니다.")
+    alert("성공적으로 추가되었습니다.");
     fetchCategoryData();
     setIsCategoryModalOpen(false);
   };
+
+  const deleteCategory = async (categoryId: number) => {
+    try {
+      await axios.delete(`http://localhost:4041/api/v1/categories/delete/${categoryId}`);
+
+    } catch (e) {
+      console.error(e);
+      return;
+    }
+    alert("성공적으로 삭제되었습니다.");
+    fetchCategoryData();
+
+  }
+
   useEffect(() => {
     fetchData();
     fetchCategoryData();
@@ -167,11 +219,9 @@ export default function MenuManagement() {
   useEffect(() => {
     setAddCategory({
       menuCategory: "",
-      menuCategorySequence: categories.length + 1
-    })
+      menuCategorySequence: categories.length + 1,
+    });
   }, [categories]);
-
-
 
   const upChange = (index: number) => {
     if (index === 0) return;
@@ -199,15 +249,6 @@ export default function MenuManagement() {
     updateCategorySequence(updatedCategories);
   };
 
-  const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    const { name, value } = e.target;
-    setMenu((prev) => ({
-      ...prev,
-      [name]: name !== "menuPrice" ? value : Number(value),
-    }));
-  };
-
   const categoryChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setAddCategory((prev) => ({
@@ -215,15 +256,83 @@ export default function MenuManagement() {
       [name]: value,
     }));
   };
+  const getCategoryId = (categoryName: string) => {
+    const category = categories.find(cate => cate.menuCategory === categoryName);
+    return category ? category.id : 0;
+  }
+  const updateButton = async (menuId: number) => {
+    const selectedMenu = menus.find(menu => menu.menuId === menuId);
+    if (selectedMenu) {
+      setUpdateMenudata({
+        categoryId: getCategoryId(selectedMenu.menuCategory),
+        menuName: selectedMenu.menuName,
+        imageUrl: selectedMenu.imageUrl,
+        menuDescription: selectedMenu.menuDescription,
+        menuPrice: selectedMenu.menuPrice,
+        isAvailable: selectedMenu.isAvailable,
+        menuOptions: selectedMenu.menuOptions ? 
+        selectedMenu.menuOptions.map((option: any) => ({
+          ...option,
+          optionDetails: option.optionDetails || [],
+        })) : [],
+      });
+      
+      setSelectedMenuId(menuId);
+    }
+    try {
+      const data = await axios.get(`http://localhost:4041/api/v1/menus/${menuId}`);
+      const result = data.data.data;
+      const updatedMenuData = {
+        ...result,
+        menuOptions: result.menuOptions ? result.menuOptions.map((option: MenuOptions) => ({
+          ...option,
+          optionDetails: option.optionDetails || [],
+        })) : [],
+        
+      };
+      setUpdateMenudata(prev => ({
+        ...prev,
+        ...updatedMenuData
+      }));
 
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setMenu({ ...menu, isAvailable: event.target.checked });
+      const initialChecked = updatedMenuData.menuOptions.map(() => true);
+      setUpdateOptionChecked(initialChecked);
+
+      console.log("updated Menu Data:", updatedMenuData);
+
+    } catch (e) {
+      console.error(e);
+    }
+    updateModalOpen();
+  }
+
+  const deleteMenu = async (menuId: number) => {
+    const token = cookies.token;
+
+    if (window.confirm("정말 삭제하시겠습니까?")) {
+      try {
+        await axios.delete(
+          `http://localhost:4041/api/v1/menus/delete/${menuId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      } catch (e) {
+        console.error("메뉴 삭제가 안됨");
+      }
+      alert("성공적으로 삭제되었습니다.");
+      fetchData();
+    } else {
+      return;
+    }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {};
 
-  console.log(menus);
-  console.log(categories);
+  // console.log(menus);
+  // console.log(menus.length);
+  // console.log(categories);
   return (
     <>
       <div css={s.menuAll}>
@@ -235,8 +344,8 @@ export default function MenuManagement() {
             <div css={s.selectMenuCategory}>
               <select name="categorySelect" id="categories">
                 <option>전체</option>
-                {categories.map((category) => (
-                  <option>{category.menuCategory}</option>
+                {categories.map((category, key) => (
+                  <option key={category.id}>{category.menuCategory}</option>
                 ))}
               </select>
             </div>
@@ -248,6 +357,7 @@ export default function MenuManagement() {
               {categories.map((category, index) => (
                 <li key={category.id} css={s.addCategory}>
                   {index + 1}. {category.menuCategory}
+                  <button onClick={() => deleteCategory(category.id)}>X</button>
                 </li>
               ))}
               <FormControlLabel
@@ -284,159 +394,80 @@ export default function MenuManagement() {
                     </button>
                   </div>
                 </Fade>
+                <div css={s.categoryCancle}>
+                  <button onClick={categoryCloseModal}>취소</button>
+                </div>
               </Box>
             </div>
           </Modal>
         </div>
         <div>
           <ul>
-            {categories.map((category, index) => (
-              <li key={category.id}>
-                <h2 className="h2">{category.menuCategory}</h2>
-                <button onClick={() => upChange(index)}>올리기</button>
-                <button onClick={() => downChange(index)}>내리기</button>
-                <ul>
-                  {menus
-                    .filter(
-                      (menu) => menu.menuCategory === category.menuCategory
-                    )
-                    .map((menu) => (
-                      <li>
-                        <div css={s.menu}>
-                          <div>{menu.imageUrl}</div>
-                          <div>{menu.menuName}</div>
-                          <div>{menu.menuDescription}</div>
-                          <div>{menu.menuPrice}</div>
-                          <div>{menu.isAvailable ? "가능" : "불가능"}</div>
-                        </div>
-                      </li>
-                    ))}
-
-                  <Modal open={isModalOpen} onClose={closeModal}>
-                    <div css={s.inputMenu}>
-                      <div>
-                        <div>메뉴명</div>
-                        <input
-                          css={s.submitMenu}
-                          type="text"
-                          name="menuName"
-                          value={menu.menuName}
-                          onChange={changeHandler}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <div>이미지</div>
-                        <input
-                          type="file"
-                          onChange={handleFileChange}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <div>메뉴 설명</div>
-                        <input
-                          css={s.submitMenu}
-                          type="text"
-                          name="menuDescription"
-                          value={menu.menuDescription}
-                          onChange={changeHandler}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <div>메뉴 가격</div>
-                        <input
-                          css={s.submitMenu}
-                          type="text"
-                          name="menuPrice"
-                          value={menu.menuPrice}
-                          onChange={changeHandler}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <div>메뉴 카테고리 선택</div>
-                        <select css={s.submitMenu} name="menuCategory" id="">
-                          {categories.map((category) => (
-                            <option>{category.menuCategory}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <div>메뉴 판매 가능 여부</div>
-                        <input
-                          type="checkbox"
-                          checked={menu.isAvailable}
-                          onChange={handleCheckboxChange}
-                        />
-                      </div>
-                      <FormControlLabel
-                        control={
-                          <Switch checked={checked} onChange={handleChange} />
-                        }
-                        label="옵션 추가"
-                      />
-                      <Box sx={{ display: "flex" }}>
-                        <Fade in={checked}>
-                          {checked ? (
-                            <div>
-                              <div>
-                                <div>옵션명</div>
-                                <input type="text" />
+            {categories && categories.length > 0 ? (
+              categories.map((category, index) => (
+                <li key={category.id}>
+                  <h2 className="h2">{category.menuCategory}</h2>
+                  <button onClick={() => upChange(index)}>올리기</button>
+                  <button onClick={() => downChange(index)}>내리기</button>
+                  <ul>
+                    {menus && menus.length > 0 ? (
+                      menus.filter(
+                        (menu: Menus) => menu.menuCategory === category.menuCategory
+                      )
+                      .map((menu: Menus) => (
+                        <li key={menu.menuId}>
+                          <div css={s.menu}>
+                            <div css={s.menuImage}>{menu.imageUrl}</div>
+                            <div css={s.menuBody}>
+                              <div css={s.menuName}>{menu.menuName}</div>
+                              <div css={s.menuDescription}>
+                                {menu.menuDescription}
                               </div>
-                              <FormControlLabel
-                                control={
-                                  <Switch
-                                    checked={menuChecked}
-                                    onChange={menuHandleChange}
-                                  />
-                                }
-                                label="옵션 정보 추가"
-                              />
-                              <Box sx={{ display: "flex" }}>
-                                <Fade in={menuChecked}>
-                                  {menuChecked ? (
-                                    <div>
-                                      <div>추가 메뉴명</div>
-                                      <input type="text" />
-                                      <div>추가 메뉴 가격</div>
-                                      <input type="number" />
-                                    </div>
-                                  ) : (
-                                    <div>not</div>
-                                  )}
-                                </Fade>
-                              </Box>
                             </div>
-                          ) : (
-                            <div>not</div>
-                          )}
-                        </Fade>
-                      </Box>
-
-                      <div css={s.modalButton}>
-                        <div>
-                          <button css={s.modalSubmitButton} onClick={menuAdd}>
-                            저장
-                          </button>
-                        </div>
-                        <div>
-                          <button
-                            css={s.modalCancleButton}
-                            onClick={closeModal}
-                          >
-                            취소
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </Modal>
-                </ul>
-              </li>
-            ))}
+                            <div css={s.menuFoot}>
+                              <div css={s.menuButtonContainer}>
+                                <button onClick={() => updateButton(menu.menuId)}>수정</button>
+                                <button onClick={() => deleteMenu(menu.menuId)}>
+                                  삭제
+                                </button>
+                              </div>
+                              <div css={s.menuIsAvailable}>
+                                메뉴 판매 가능 여부
+                                <Switch
+                                  checked={menu.isAvailable}
+                                  onClick={() => stateIsAvailable(menu.menuId)}
+                                />
+                              </div>
+                              <div css={s.menuPrice}>
+                                가격: {menu.menuPrice}원
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                      ))) : (
+                        <li>메뉴 없음</li>
+                      )}
+                  </ul>
+                </li>
+              ))
+            ) : (
+              <>
+                <div>카테고리 없음</div>
+              </>
+            )}
           </ul>
           <button onClick={openModal}>메뉴추가</button>
+          <MenuModal
+            modalStatus={isModalOpen}
+            closeModal={closeModal}
+            categories={categories}
+            fetchData={fetchData}
+            updateMenudata={updateMenudata}
+            updateOptionChecked={updateOptionChecked}
+            setUpdateOptionChecked={setUpdateOptionChecked}
+            menus={menus}
+            selectedMenuId={selectedMenuId}
+          />
         </div>
       </div>
     </>

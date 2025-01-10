@@ -7,7 +7,6 @@ export const menusStatsContainer = css`
     padding: 70px 30px 0 30px;
 `;
 
-/* Left Container */
 export const menuStatsLeft = css`
     width: 40%;
     min-width: 600px;
@@ -128,13 +127,10 @@ export const monthCalendarContainerNone = css`
     display: none;
 `;
 
-
-/* Chart Left Result */
 export const chartResultLeftContainer = css`
     width: 100%;
 `;
 
-/* Right Container */
 export const menuStatsRightContainer = css`
     width: 40%;
     min-width: 600px;
@@ -173,7 +169,7 @@ export const menuStatsRightAllResult = css`
 
 export const menuStatsRightTextContainer = css`
     background-color: #eff6ff;
-    height: 530px;
+    aspect-ratio: 1;
     display: flex;
     padding: 30px;
     justify-content: space-around;
@@ -184,7 +180,7 @@ export const menuStatsRightTextContainer = css`
     border: 1px solid #e9e9e9;
 `;
 
-/* Statistics Columns */
+
 export const orderProductName = css`
     width: 40%;
     text-align: center;
@@ -213,7 +209,7 @@ export const orderProductName = css`
     }
 `;
 
-export const totalQuantitySold = css`
+export let totalQuantitySold = css`
     width: 30%;
 
     & > div:nth-of-type(1) {

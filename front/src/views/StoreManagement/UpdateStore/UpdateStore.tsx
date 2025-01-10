@@ -2,6 +2,7 @@
 import { Box } from "@mui/system";
 import * as css from "./Style";
 import React, { useEffect, useRef, useState } from "react";
+import DaumPostcode from "react-daum-postcode";
 import {
   Button,
   FormControl,
@@ -27,7 +28,12 @@ export default function Store() {
   const [category, setCategory] = useState<string>("");
   const [imageData, setImgData] = useState<string>();
   const [base64, setBase64] = useState<string | null>();
+  const [address, setAddress] = useState("");
+  const [detailAddress, setDetailAddress] = useState("");
+  const [detail2Address, setDetail2Address] = useState("");
+  const [openPostcode, setOpenPostcode] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const [store, setStore] = useState<StoreInfo>({
     storeName: "",
     logoUrl: "",
@@ -37,6 +43,8 @@ export default function Store() {
     breakStartTime: "",
     breakEndTime: "",
     address: "",
+    detailAddress: "",
+    detail2Address: "",
     description: "",
   });
 
@@ -49,8 +57,23 @@ export default function Store() {
     breakStartTime: "",
     breakEndTime: "",
     address: "",
+    detailAddress: "",
+    detail2Address: "",
     description: "",
   });
+
+  const clickButton = () => {
+    setOpenPostcode((current) => !current);
+  };
+
+  const selectAddress = (data: any) => {
+      setUpdateStore((prev) => ({
+        ...prev,
+        address: data.address,
+        detailAddress: data.detailAddress || "",
+        detail2Address: data.detail2Address || "",
+      }))
+  };
 
   const fetchStore = async () => {
     try {
@@ -66,6 +89,9 @@ export default function Store() {
         const data = response.data.data;
         setStore(data);
         setUpdateStore(data);
+        setAddress(data.address);
+        setDetailAddress(data.detailAddress);
+        setDetail2Address(data.detail2Address);
         setImgData(data.logoUrl);
         setCategory(data.category);
       }
@@ -160,11 +186,17 @@ export default function Store() {
     fields.forEach((field) => {
       const newValue = updateStore[field as keyof StoreInfo];
       const oldValue = store[field as keyof StoreInfo];
-      formData.append(field, newValue || oldValue || "");
+      const valueToAppend = newValue || oldValue || "";
+      formData.append(field, valueToAppend);
     });
 
     if(base64) {
       formData.append("logoUrl", base64);
+    }else if(imageData){
+      formData.append("logoUrl", imageData);
+    } else {
+      alert("이미지는 jpg 또는 jpeg로 선택해주세요");
+      return;
     }
 
     if (!token) {
@@ -178,7 +210,7 @@ export default function Store() {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'form-data'
+            "content-Type": "multipart/form-data",
           },
         }
       );
@@ -305,14 +337,62 @@ export default function Store() {
             />
           </LocalizationProvider>
         </Box>
-        <Box css={css.address}>
-          <p style={{ fontSize: "20px", margin: "10px" }}>주소 API</p>
-          <textarea
-            value={updateStore.address}
-            defaultValue={store.address}
-            name="address"
-            onChange={handleStoreChange}
-          ></textarea>
+        <Box>
+          <div>
+            <tr>
+              <td className="title">주소</td>
+              <input
+                id="address_kakao"
+                onClick={clickButton}
+                value={address}
+                onChange={handleStoreChange}
+              ></input>
+              <div
+                style={{
+                  position: "relative", 
+                  display: "inline-block",
+                }}
+              >
+                {openPostcode && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: "110%",
+                      zIndex: 1000,
+                      border: "1px solid #ccc",
+                      background: "#fff",
+                      boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+                      width: "400px",
+                    }}
+                  >
+                    <DaumPostcode
+                      onComplete={selectAddress}
+                      autoClose={false}
+                      defaultQuery="판교역로 235"
+                      style={{ height: "400px" }}
+                    />
+                  </div>
+                )}
+              </div>
+            </tr>
+            <Box
+              sx={{
+                marginTop: "16px", 
+              }}
+            >
+              <tr>
+                <td className="title">상세주소</td>
+                <td>
+                  <input value={detailAddress} onChange={handleStoreChange}></input>
+                </td>
+                <input
+                  value={detail2Address}
+                  onChange={handleStoreChange}
+                ></input>
+              </tr>
+            </Box>
+          </div>
         </Box>
         <Box>
           <p style={{ fontSize: "20px", margin: "10px" }}>가게 설명</p>
@@ -325,7 +405,7 @@ export default function Store() {
           ></textarea>
         </Box>
         <Button
-          css={css.storeSubmitButton}
+          css={css.storeUpdateButton}
           onClick={(e) => {
             if (checkStoreInput()) {
               handleSubmit(e);

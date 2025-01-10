@@ -1,13 +1,14 @@
 package org.example.springbootpractice.service;
 
-import org.example.springbootpractice.dto.auth.request.LoginRequestDto;
-import org.example.springbootpractice.dto.auth.request.SignUpRequestDto;
-import org.example.springbootpractice.dto.auth.response.LoginResponseDto;
+import jakarta.validation.Valid;
+import org.example.springbootpractice.dto.auth.request.*;
+import org.example.springbootpractice.dto.auth.response.*;
 import org.example.springbootpractice.dto.ResponseDto;
-import org.example.springbootpractice.dto.auth.response.SignUpResponseDto;
 
 public interface AuthService {
     ResponseDto<SignUpResponseDto> signUp(SignUpRequestDto dto);
-
-    ResponseDto<LoginResponseDto> login(LoginRequestDto dto);
+    ResponseDto<UserIdDuplicationCheckResponseDto> userIdDuplicationCheck(@Valid UserIdDuplicationCheckRequestDto dto);
+    ResponseDto<UserBusinessNumberDuplicationCheckResponseDto> userBusinessNumberDuplicationCheck(@Valid UserBusinessNumberDuplicationCheckRequestDto dto);
+    ResponseDto<LoginResponseDto> login(@Valid LoginRequestDto dto);
+    ResponseDto<UserEmailDuplicationCheckResponseDto> userEmailDuplicationCheck(@Valid UserEmailDuplicationCheckRequestDto dto);
 }

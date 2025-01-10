@@ -19,5 +19,12 @@ export interface Errors {
   userPhone : string; // 휴대폰 번호
   userBusinessNumber : string; // 사업자 번호
   form?: string; // 전체 폼 오류 메세지 (ex 서버 오류 등)
+  [key: string]: string | undefined;
 }
 
+// export interface SuccessMsg {
+//   userId: string;
+//   checkPw: string;
+//   userBusinessNumber: string;
+//   userEmail: string;
+// }
